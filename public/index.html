@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BMI Calculator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <form id="bmiForm">
+      <h1>BMI Calculator</h1>
+
+      <label for="weight">Weight (kg):</label>
+      <input type="number" step="0.1" name="weight" id="weight" required />
+
+      <label for="height">Height (m):</label>
+      <input type="number" step="0.01" name="height" id="height" required />
+
+      <button type="submit">Calculate BMI</button>
+    </form>
+
+    <div id="result" class="hidden"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("bmiForm");
+    const resultDiv = document.getElementById("result");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const weight = document.getElementById("weight").value;
+      const height = document.getElementById("height").value;
+
+      const res = await fetch("/calculate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `weight=${weight}&height=${height}`,
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
+      } else {
+        resultDiv.innerHTML = `
+          <p class="bmi-result">Your BMI is <strong>${data.bmi}</strong></p>
+          <p class="bmi-category">Category: <strong>${data.category}</strong></p>
+        `;
+      }
+
+      resultDiv.classList.remove("hidden");
+      resultDiv.classList.add("fadeInResult");
+    });
+  </script>
+</body>
+</html>
